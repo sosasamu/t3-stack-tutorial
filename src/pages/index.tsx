@@ -1,5 +1,11 @@
 import { SignInButton, useUser } from "@clerk/nextjs";
-import { Box, ImageListItem, TextField, Typography } from "@mui/material";
+import {
+  Box,
+  Container,
+  ImageListItem,
+  TextField,
+  Typography,
+} from "@mui/material";
 import { type NextPage } from "next";
 import Head from "next/head";
 
@@ -9,6 +15,7 @@ import Image from "next/image";
 
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
+import { Loading } from "~/components/loading";
 
 dayjs.extend(relativeTime);
 
@@ -87,14 +94,33 @@ const PostView = (props: PostWithUser) => {
   );
 };
 
-const Home: NextPage = () => {
-  const user = useUser();
+const Feed = () => {
+  const { data, isLoading: postsLoading } = api.posts.getAll.useQuery();
 
-  const { data, isLoading } = api.posts.getAll.useQuery();
-
-  if (isLoading) return <div>Loading...</div>;
+  if (postsLoading) return <Loading />;
 
   if (!data) return <div>Something went wrong</div>;
+
+  return (
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+      }}
+    >
+      {[...data, ...data]?.map((fullPost) => (
+        <PostView {...fullPost} key={fullPost.post.id} />
+      ))}
+    </Box>
+  );
+};
+
+const Home: NextPage = () => {
+  const { isLoaded: userLoaded, isSignedIn } = useUser();
+
+  api.posts.getAll.useQuery();
+
+  if (!userLoaded) return <div />;
 
   return (
     <>
@@ -104,17 +130,15 @@ const Home: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main>
-        <Box
+        <Container
+          maxWidth="md"
           sx={{
-            display: "flex",
-            justifyContent: "center",
             height: "100vh",
           }}
         >
           <Box
             sx={{
-              maxWidth: { md: 600 },
-              width: "100vw",
+              height: "100%",
               border: 1,
               borderColor: "rgb(148 163 184)",
             }}
@@ -126,25 +150,16 @@ const Home: NextPage = () => {
                 p: 2,
               }}
             >
-              {!user.isSignedIn && (
+              {!isSignedIn && (
                 <Box className="flex justify-center">
                   <SignInButton />
                 </Box>
               )}
-              {user.isSignedIn && <CreatePostWizard />}
+              {isSignedIn && <CreatePostWizard />}
             </Box>
-            <Box
-              sx={{
-                display: "flex",
-                flexDirection: "column",
-              }}
-            >
-              {[...data, ...data]?.map((fullPost) => (
-                <PostView {...fullPost} key={fullPost.post.id} />
-              ))}
-            </Box>
+            <Feed />
           </Box>
-        </Box>
+        </Container>
       </main>
     </>
   );
