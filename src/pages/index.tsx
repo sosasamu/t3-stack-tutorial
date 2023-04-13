@@ -1,12 +1,17 @@
 import { SignInButton, useUser } from "@clerk/nextjs";
 import {
+  Alert,
   Box,
   Button,
+  CircularProgress,
   Container,
   ImageListItem,
+  Snackbar,
   TextField,
   Typography,
 } from "@mui/material";
+import type { SnackbarOrigin } from "@mui/material";
+
 import { type NextPage } from "next";
 import Head from "next/head";
 
@@ -18,13 +23,30 @@ import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { Loading } from "~/components/loading";
 import { useState } from "react";
+import { SubmitPostLoading } from "~/components/submitPostLoading";
 
 dayjs.extend(relativeTime);
+
+export interface State extends SnackbarOrigin {
+  message: string | undefined;
+  open: boolean;
+}
 
 const CreatePostWizard = () => {
   const { user } = useUser();
 
   const [input, setInput] = useState("");
+  const [snackbarState, setSnackbarState] = useState<State>({
+    horizontal: "center",
+    message: "",
+    open: false,
+    vertical: "bottom",
+  });
+  const { vertical, horizontal, open, message } = snackbarState;
+
+  const handleCloseSnackBar = () => {
+    setSnackbarState((state) => ({ ...state, open: false }));
+  };
 
   const ctx = api.useContext();
 
@@ -32,7 +54,23 @@ const CreatePostWizard = () => {
     onSuccess: () => {
       setInput("");
       void ctx.posts.getAll.invalidate();
-    }
+    },
+    onError: (e) => {
+      const errorMessage = e.data?.zodError?.fieldErrors.content;
+      if (errorMessage && errorMessage[0]) {
+        setSnackbarState((state) => ({
+          ...state,
+          open: true,
+          message: errorMessage[0],
+        }));
+      } else {
+        setSnackbarState((state) => ({
+          ...state,
+          open: true,
+          message: "Failed to post! Please try again later.",
+        }));
+      }
+    },
   });
 
   console.log(user);
@@ -45,7 +83,18 @@ const CreatePostWizard = () => {
         width: "100%",
       }}
     >
-      <ImageListItem sx={{ marginRight: 2, height: 56, width: 56 }}>
+      <Snackbar
+        anchorOrigin={{ vertical, horizontal }}
+        open={open}
+        onClose={handleCloseSnackBar}
+        autoHideDuration={3000}
+        key={vertical + horizontal}
+      >
+        <Alert onClose={handleCloseSnackBar} severity="error">
+          {message}
+        </Alert>
+      </Snackbar>
+      <ImageListItem sx={{ height: 56, width: 56 }}>
         <Image
           src={user?.profileImageUrl}
           alt="profileImage"
@@ -56,9 +105,18 @@ const CreatePostWizard = () => {
       </ImageListItem>
       <TextField
         sx={{
+          flexGrow: 1,
           input: { color: "white" },
           label: { color: "white" },
-          flexGrow: 1,
+          marginLeft: 2,
+          marginRight: 2,
+        }}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            if (input !== "" && !isPosting) {
+              mutate({ content: input });
+            }
+          }
         }}
         label="Type some emojis!"
         variant="standard"
@@ -67,9 +125,16 @@ const CreatePostWizard = () => {
         onChange={(e) => setInput(e.target.value)}
         disabled={isPosting}
       />
-      <Button variant="outlined" onClick={() => mutate({ content: input })}>
-        Post
-      </Button>
+      {input !== "" && !isPosting && (
+        <Button
+          disabled={isPosting}
+          onClick={() => mutate({ content: input })}
+          variant="outlined"
+        >
+          Post
+        </Button>
+      )}
+      {isPosting && <SubmitPostLoading />}
     </Box>
   );
 };
@@ -82,10 +147,10 @@ const PostView = (props: PostWithUser) => {
     <Box
       key={post.id}
       sx={{
-        p: 4,
         border: 1,
         borderColor: "rgb(148 163 184)",
         display: "flex",
+        p: 4,
       }}
     >
       <ImageListItem sx={{ marginRight: 2, height: 56, width: 56 }}>
@@ -98,7 +163,7 @@ const PostView = (props: PostWithUser) => {
         />
       </ImageListItem>
       <Box sx={{ display: "flex", flexDirection: "column" }}>
-        <Box sx={{ color: "#cbd5e1", display: "flex", alignItems: "center" }}>
+        <Box sx={{ alignItems: "center", color: "#cbd5e1", display: "flex" }}>
           <Typography
             variant="body1"
             sx={{ marginRight: 1 }}
@@ -159,9 +224,9 @@ const Home: NextPage = () => {
         >
           <Box
             sx={{
-              height: "100%",
               border: 1,
               borderColor: "rgb(148 163 184)",
+              height: "100%",
             }}
           >
             <Box
