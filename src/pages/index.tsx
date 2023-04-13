@@ -3,7 +3,6 @@ import {
   Alert,
   Box,
   Button,
-  CircularProgress,
   Container,
   ImageListItem,
   Snackbar,
@@ -24,6 +23,7 @@ import relativeTime from "dayjs/plugin/relativeTime";
 import { Loading } from "~/components/loading";
 import { useState } from "react";
 import { SubmitPostLoading } from "~/components/submitPostLoading";
+import Link from "next/link";
 
 dayjs.extend(relativeTime);
 
@@ -164,13 +164,17 @@ const PostView = (props: PostWithUser) => {
       </ImageListItem>
       <Box sx={{ display: "flex", flexDirection: "column" }}>
         <Box sx={{ alignItems: "center", color: "#cbd5e1", display: "flex" }}>
-          <Typography
-            variant="body1"
-            sx={{ marginRight: 1 }}
-          >{`@${author.username}`}</Typography>
-          <Typography variant="body2">{`· ${dayjs(
-            post.createdAt
-          ).fromNow()}`}</Typography>
+          <Link href={`/@${author.username}`}>
+            <Typography
+              variant="body1"
+              sx={{ marginRight: 1 }}
+            >{`@${author.username}`}</Typography>
+          </Link>
+          <Link href={`/post/${post.id}`}>
+            <Typography variant="body2">{`· ${dayjs(
+              post.createdAt
+            ).fromNow()}`}</Typography>
+          </Link>
         </Box>
         <Box component="span">
           <Typography variant="h6">{post.content}</Typography>
