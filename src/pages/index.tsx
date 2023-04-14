@@ -3,29 +3,22 @@ import {
   Alert,
   Box,
   Button,
-  Container,
   ImageListItem,
   Snackbar,
   TextField,
-  Typography,
 } from "@mui/material";
 import type { SnackbarOrigin } from "@mui/material";
 
 import { type NextPage } from "next";
 
 import { api } from "~/utils/api";
-import type { RouterOutputs } from "~/utils/api";
 import Image from "next/image";
 
-import dayjs from "dayjs";
-import relativeTime from "dayjs/plugin/relativeTime";
-import { Loading } from "~/components/loading";
+import { Loading } from "~/components/loaders/loading";
 import { useState } from "react";
-import { SubmitPostLoading } from "~/components/submitPostLoading";
-import Link from "next/link";
+import { SubmitPostLoading } from "~/components/loaders/submitPostLoading";
+import { PostView } from "~/components/postview";
 import { LayoutPage } from "~/components/layout";
-
-dayjs.extend(relativeTime);
 
 export interface State extends SnackbarOrigin {
   message: string | undefined;
@@ -135,52 +128,6 @@ const CreatePostWizard = () => {
         </Button>
       )}
       {isPosting && <SubmitPostLoading />}
-    </Box>
-  );
-};
-
-type PostWithUser = RouterOutputs["posts"]["getAll"][number];
-
-const PostView = (props: PostWithUser) => {
-  const { post, author } = props;
-  // !TODO pasar el Box a theme
-  return (
-    <Box
-      key={post.id}
-      sx={{
-        borderBottom: 1,
-        borderColor: "rgb(148 163 184)",
-        display: "flex",
-        p: 4,
-      }}
-    >
-      <ImageListItem sx={{ marginRight: 2, height: 56, width: 56 }}>
-        <Image
-          src={author.profileImageUrl}
-          alt={`@${author.username}'s profile picture`}
-          style={{ borderRadius: "50%" }}
-          width={56}
-          height={56}
-        />
-      </ImageListItem>
-      <Box sx={{ display: "flex", flexDirection: "column" }}>
-        <Box sx={{ alignItems: "center", color: "#cbd5e1", display: "flex" }}>
-          <Link href={`/@${author.username}`}>
-            <Typography
-              variant="body1"
-              sx={{ marginRight: 1 }}
-            >{`@${author.username}`}</Typography>
-          </Link>
-          <Link href={`/post/${post.id}`}>
-            <Typography variant="body2">{`· ${dayjs(
-              post.createdAt
-            ).fromNow()}`}</Typography>
-          </Link>
-        </Box>
-        <Box component="span">
-          <Typography variant="h6">{post.content}</Typography>
-        </Box>
-      </Box>
     </Box>
   );
 };
