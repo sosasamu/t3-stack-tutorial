@@ -57,19 +57,6 @@ const ProfilePage: NextPage<{ username: string }> = ({ username }) => {
           <GoBack />
           <Box
             sx={{
-              textAlign: "center",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            <Typography variant="h4">
-              {data.firstName} {data.lastName}
-            </Typography>
-            <Typography variant="h4">{data.email}</Typography>
-          </Box>
-          <Box
-            sx={{
               position: "absolute",
               bottom: 0,
               left: 0,
@@ -96,6 +83,18 @@ const ProfilePage: NextPage<{ username: string }> = ({ username }) => {
           }}
         >
           <Typography variant="h5">{`@${data.username ?? ""}`}</Typography>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              flexDirection: "column",
+            }}
+          >
+            <Typography variant="subtitle2">
+              {data.firstName} {data.lastName}
+            </Typography>
+            <Typography variant="subtitle2">{data.email}</Typography>
+          </Box>
         </Box>
         <Divider sx={{ borderColor: "#475569", borderBottomWidth: "medium" }} />
         <ProfileFeed userId={data.id} />

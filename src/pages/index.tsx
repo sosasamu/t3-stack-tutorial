@@ -22,6 +22,8 @@ import { SubmitPostLoading } from "~/components/loaders/submitPostLoading";
 import { PostView } from "~/components/postview";
 import { LayoutPage } from "~/components/layout";
 import EmojiPicker from "emoji-picker-react";
+import Link from "next/link";
+import { useRouter } from "next/router";
 
 export interface State extends SnackbarOrigin {
   message: string | undefined;
@@ -30,6 +32,7 @@ export interface State extends SnackbarOrigin {
 
 const CreatePostWizard = () => {
   const { user } = useUser();
+  console.log(user);
 
   const [input, setInput] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -40,6 +43,7 @@ const CreatePostWizard = () => {
     vertical: "bottom",
   });
   const { vertical, horizontal, open, message } = snackbarState;
+  const router = useRouter();
 
   const handleCloseSnackBar = () => {
     setSnackbarState((state) => ({ ...state, open: false }));
@@ -47,6 +51,14 @@ const CreatePostWizard = () => {
 
   const handleCloseDialog = () => {
     setDialogOpen(false);
+  };
+
+  const handleLinkClick = async (
+    e: React.MouseEvent<HTMLElement>,
+    path: string
+  ) => {
+    e.preventDefault();
+    await router.push(path);
   };
 
   const ctx = api.useContext();
@@ -96,15 +108,22 @@ const CreatePostWizard = () => {
           {message}
         </Alert>
       </Snackbar>
-      <ImageListItem sx={{ height: 56, width: 56 }}>
-        <Image
-          src={user?.profileImageUrl}
-          alt="profileImage"
-          style={{ borderRadius: "50%" }}
-          width={56}
-          height={56}
-        />
-      </ImageListItem>
+      <Link
+        href={`/@${user?.username ?? ""}`}
+        onClick={(e) => {
+          void handleLinkClick(e, `/@${user?.username ?? ""}`);
+        }}
+      >
+        <ImageListItem sx={{ height: 56, width: 56 }}>
+          <Image
+            src={user?.profileImageUrl}
+            alt="profileImage"
+            style={{ borderRadius: "50%" }}
+            width={56}
+            height={56}
+          />
+        </ImageListItem>
+      </Link>
       <TextField
         sx={{
           flexGrow: 1,
