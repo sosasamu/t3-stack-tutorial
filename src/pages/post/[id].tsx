@@ -7,6 +7,7 @@ import { LayoutPage } from "~/components/layout";
 import { PostView } from "~/components/postview";
 
 import { generateSSGHelper } from "~/server/helpers/ssgHelper";
+import { GoBack } from "~/components/goback";
 
 const SinglePostPage: NextPage<{ id: string }> = ({ id }) => {
   const { data } = api.posts.getById.useQuery({
@@ -21,6 +22,7 @@ const SinglePostPage: NextPage<{ id: string }> = ({ id }) => {
         <title>{`${data.post.content} - @${data.author.username}`}</title>
       </Head>
       <LayoutPage>
+        <GoBack />
         <PostView {...data} />
       </LayoutPage>
     </>

@@ -3,6 +3,8 @@ import {
   Alert,
   Box,
   Button,
+  Dialog,
+  Grid,
   ImageListItem,
   Snackbar,
   TextField,
@@ -19,6 +21,7 @@ import { useState } from "react";
 import { SubmitPostLoading } from "~/components/loaders/submitPostLoading";
 import { PostView } from "~/components/postview";
 import { LayoutPage } from "~/components/layout";
+import EmojiPicker from "emoji-picker-react";
 
 export interface State extends SnackbarOrigin {
   message: string | undefined;
@@ -29,6 +32,7 @@ const CreatePostWizard = () => {
   const { user } = useUser();
 
   const [input, setInput] = useState("");
+  const [dialogOpen, setDialogOpen] = useState(false);
   const [snackbarState, setSnackbarState] = useState<State>({
     horizontal: "center",
     message: "",
@@ -39,6 +43,10 @@ const CreatePostWizard = () => {
 
   const handleCloseSnackBar = () => {
     setSnackbarState((state) => ({ ...state, open: false }));
+  };
+
+  const handleCloseDialog = () => {
+    setDialogOpen(false);
   };
 
   const ctx = api.useContext();
@@ -74,6 +82,7 @@ const CreatePostWizard = () => {
         borderColor: "rgb(148 163 184)",
         display: "flex",
         p: 4,
+        alignItems: "center",
       }}
     >
       <Snackbar
@@ -118,16 +127,42 @@ const CreatePostWizard = () => {
         onChange={(e) => setInput(e.target.value)}
         disabled={isPosting}
       />
-      {input !== "" && !isPosting && (
-        <Button
-          disabled={isPosting}
-          onClick={() => mutate({ content: input })}
-          variant="outlined"
+      {/* EMOJI PICKER DIALOG */}
+      <Dialog onClose={handleCloseDialog} open={dialogOpen}>
+        <EmojiPicker
+          onEmojiClick={(emojiData) =>
+            setInput((input) => `${input}${emojiData.emoji}`)
+          }
+        />
+      </Dialog>
+      <Box>
+        <Grid
+          container
+          direction="column"
+          justifyContent="center"
+          alignItems="center"
         >
-          Post
-        </Button>
-      )}
-      {isPosting && <SubmitPostLoading />}
+          {!isPosting && (
+            <Button
+              sx={{ marginBottom: "5px", maxWidth: "70px" }}
+              onClick={() => setDialogOpen(true)}
+              variant="text"
+            >
+              Emojis
+            </Button>
+          )}
+          {input !== "" && !isPosting && (
+            <Button
+              disabled={isPosting}
+              onClick={() => mutate({ content: input })}
+              variant="outlined"
+            >
+              Post
+            </Button>
+          )}
+          {isPosting && <SubmitPostLoading />}
+        </Grid>
+      </Box>
     </Box>
   );
 };
@@ -169,8 +204,10 @@ const Home: NextPage = () => {
         }}
       >
         {!isSignedIn && (
-          <Box className="flex justify-center">
-            <SignInButton />
+          <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+            <Button variant="outlined">
+              <SignInButton />
+            </Button>
           </Box>
         )}
         {isSignedIn && <CreatePostWizard />}

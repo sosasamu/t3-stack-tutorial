@@ -9,6 +9,7 @@ import { Loading } from "~/components/loaders/loading";
 import { PostView } from "~/components/postview";
 
 import { generateSSGHelper } from "~/server/helpers/ssgHelper";
+import { GoBack } from "~/components/goback";
 
 const ProfileFeed = (props: { userId: string }) => {
   const { data, isLoading } = api.posts.getPostsByUserId.useQuery({
@@ -53,6 +54,20 @@ const ProfilePage: NextPage<{ username: string }> = ({ username }) => {
             height: "192px",
           }}
         >
+          <GoBack />
+          <Box
+            sx={{
+              textAlign: "center",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <Typography variant="h4">
+              {data.firstName} {data.lastName}
+            </Typography>
+            <Typography variant="h4">{data.email}</Typography>
+          </Box>
           <Box
             sx={{
               position: "absolute",
