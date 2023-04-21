@@ -8,6 +8,7 @@ import {
   ImageListItem,
   Snackbar,
   TextField,
+  Typography,
 } from "@mui/material";
 import type { SnackbarOrigin } from "@mui/material";
 
@@ -91,8 +92,6 @@ const CreatePostWizard = () => {
   return (
     <Box
       sx={{
-        borderBottom: 1,
-        borderColor: "rgb(148 163 184)",
         display: "flex",
         p: 4,
         alignItems: "center",
@@ -216,30 +215,37 @@ const Home: NextPage = () => {
   if (!userLoaded) return <div />;
 
   return (
-    <LayoutPage>
-      <Box
-        sx={{
-          border: 1,
-          borderColor: "rgb(148 163 184)",
-        }}
-      >
-        <Box
-          sx={{ justifyContent: "flex-end", display: "flex", flex: 1 }}
-        ></Box>
-        <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-          <SignedIn>
-            <SignOutButton />
-          </SignedIn>
-          <SignedOut>
-            <Button variant="text" color="inherit" startIcon={<Login />}>
-              <SignInButton />
-            </Button>
-          </SignedOut>
-        </Box>
-        {isSignedIn && <CreatePostWizard />}
-        <Feed />
+    <>
+      <Box sx={{ position: "absolute", right: "16px", top: "16px" }}>
+        <SignedIn>
+          <SignOutButton />
+        </SignedIn>
+        <SignedOut>
+          <Button variant="text" color="inherit" startIcon={<Login />}>
+            <SignInButton />
+          </Button>
+        </SignedOut>
       </Box>
-    </LayoutPage>
+      <LayoutPage>
+        {isSignedIn && <CreatePostWizard />}
+        <Box
+          sx={{
+            p: 2,
+            pl: 0,
+          }}
+        >
+          <Typography variant="h6">Latest Updates</Typography>
+        </Box>
+        <Box
+          sx={{
+            border: 1,
+            borderColor: "rgb(148 163 184)",
+          }}
+        >
+          <Feed />
+        </Box>
+      </LayoutPage>
+    </>
   );
 };
 
