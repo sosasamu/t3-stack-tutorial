@@ -1,4 +1,4 @@
-import { SignInButton, useUser } from "@clerk/nextjs";
+import { SignInButton, SignOutButton, useUser } from "@clerk/nextjs";
 import {
   Alert,
   Box,
@@ -24,6 +24,7 @@ import { LayoutPage } from "~/components/layout";
 import EmojiPicker from "emoji-picker-react";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import { Logout, Login } from "@mui/icons-material";
 
 export interface State extends SnackbarOrigin {
   message: string | undefined;
@@ -32,7 +33,6 @@ export interface State extends SnackbarOrigin {
 
 const CreatePostWizard = () => {
   const { user } = useUser();
-  console.log(user);
 
   const [input, setInput] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -222,13 +222,18 @@ const Home: NextPage = () => {
           borderColor: "rgb(148 163 184)",
         }}
       >
-        {!isSignedIn && (
-          <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-            <Button variant="outlined">
-              <SignInButton />
-            </Button>
-          </Box>
-        )}
+        <Box
+          sx={{ justifyContent: "flex-end", display: "flex", flex: 1 }}
+        ></Box>
+        <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+          <Button
+            variant="text"
+            color="inherit"
+            startIcon={isSignedIn ? <Logout /> : <Login />}
+          >
+            {isSignedIn ? <SignOutButton /> : <SignInButton />}
+          </Button>
+        </Box>
         {isSignedIn && <CreatePostWizard />}
         <Feed />
       </Box>
